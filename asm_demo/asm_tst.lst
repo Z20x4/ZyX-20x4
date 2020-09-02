@@ -1,0 +1,19 @@
+# file opened: asm_tst.asm
+ 1    0000                  output "asm_tst.bin", t
+ 2    0000 00               nop
+ 3    0001 F3               di
+ 4    0002 C3 05 00         jp main
+ 5    0005
+ 6    0005
+ 7    0005              main:
+ 8    0005 00               nop
+ 9    0006 00               nop
+10    0007 3E 01            ld a, 1;
+11    0009 C3 05 00         jp main
+12    000C
+13    000C
+14    000C 00               nop
+15    000D 30 30            jr nc, 0x3f
+16    000F 30 FE            jr nc, 0x0f
+17    0011              ;kill_str .byte "!!!"
+# file closed: asm_tst.asm

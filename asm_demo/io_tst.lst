@@ -1,0 +1,11 @@
+# file opened: io_tst.asm
+1     0000                  output "io_tst.bin", t
+2     0000 00               nop
+3     0001 C3 04 00         jp main
+4     0004
+5     0004
+6     0004              main:
+7     0004 3E 05            ld a, 0x05
+8     0006 D3 AB            out (0xab), a
+9     0008 C3 04 00         jp main
+# file closed: io_tst.asm

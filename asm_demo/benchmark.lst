@@ -1,0 +1,26 @@
+# file opened: benchmark.asm
+ 1    0000                  output "benchmark.bin", t
+ 2    0000 00               nop
+ 3    0001 C3 04 00         jp main
+ 4    0004              main:
+ 5    0004 3E 01            ld a, 1
+ 6    0006
+ 7    0006              lp_outer:
+ 8    0006 21 00 00         ld hl, 0
+ 9    0009 D3 0F            out (0x0f), a
+10    000B
+11    000B              loop:
+12    000B 23               inc hl
+13    000C BC               cp h
+14    000D C2 0B 00         jp nz, loop
+15    0010
+16    0010                  ; out (0x0f), a
+17    0010                  ; out (0x01), a
+18    0010 3C               inc a
+19    0011 C3 06 00         jp lp_outer
+20    0014
+21    0014
+22    0014
+23    0014
+24    0014              outend
+# file closed: benchmark.asm
