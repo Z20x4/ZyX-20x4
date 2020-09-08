@@ -20,7 +20,7 @@
 ; the original ROM code (checksum A934H). PA
 
 ; GENERAL EQUATES
-        output "basic.bin", t
+        output "basic.o", t
 CTRLC   .EQU    03H             ; Control "C"
 CTRLG   .EQU    07H             ; Control "G"
 BKSP    .EQU    08H             ; Back space

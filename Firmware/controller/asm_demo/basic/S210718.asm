@@ -45,7 +45,7 @@ TEMPSTACK       .EQU     $20ED ; Top of BASIC line input buffer so is "free ram"
 CR              .EQU     0DH
 LF              .EQU     0AH
 CS              .EQU     0CH             ; Clear screen
-                output "S210718.bin", t
+                output "S210718.o", t
                 .ORG $0000
 ;------------------------------------------------------------------------------
 ; Reset
