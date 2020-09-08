@@ -26,10 +26,16 @@ Also see:
 
 ## Building
 
-## Used components
-#### Zilog Z84C0008PEG
+### Used components
+
+- **Zilog Z84C0008PEG**
 [Documentation](https://www.zilog.com/index.php?option=com_product&Itemid=26&task=docs&businessLine=&parent_id=139&familyId=20&productId=Z84C00)
-#### Samsung K6T1008C2C-DB70
+- **Samsung K6T1008C2C-DB70**
 [Documentation](https://datasheet.ciiva.com/26786/k6t1008c2c-db70-26786234.pdf)
-#### Arduino Atmel ATMEGA2560-16AU
-[Documentation]()
+- **Arduino Atmel ATMEGA2560-16AU**
+[Documentation](http://ww1.microchip.com/downloads/en/DeviceDoc/ATmega640-1280-1281-2560-2561-Datasheet-DS40002211A.pdf)
+- switch 1825057 (2 pins)
+- SN74HC00N
+- switch 1825255-1 x2
+- SN74LVC157APWR
+- D-trig x4 74 series
