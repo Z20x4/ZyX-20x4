@@ -1,2 +1,0 @@
-    output "upload_test.bin", t
-    .byte 0x11, 0x12, 0x13, 0x14
