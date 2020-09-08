@@ -42,3 +42,18 @@ This repository contains the **firmware** for the system controller and scripts/
 - switch 1825255-1 x2
 - SN74LVC157APWR
 - D-trig x4 74 series
+- Nokia LCD
+- Yageo CC1206KKX7R0BB104 x8 (10) 100nF
+- resistor SFR2500001002JA500 (10K) x52
+- button x2
+- LED x40
+- TE Connectivity 5749231-1
+- TE Connectivity 5747872-4
+- 1 header x15
+- 2 header x3
+- 5 header x1
+- 20 header x2
+- 2x3 header x1
+- 2*18 header x2
+- 20 connector x2
+- 2x3 connector x1
