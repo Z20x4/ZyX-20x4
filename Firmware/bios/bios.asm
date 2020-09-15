@@ -120,11 +120,46 @@ RST28_LOOKUP: ;Debug handler
 RST30_LOOKUP: ;Other device custom handlers
     ;TODO
 
+
+    .porg 0x100          ; dreserve space for io bufffer
+io_buf:                     
+    .block 0x100         ; io buffer content
+start_pointer:           ; io buffer begin offset
+    .db 00  
+end_pointer:             ; io buffer end offset
+    .db 00
+
 ; Args: character to print in A
     .porg 0x220
 io_putc:
     out (0x01), a
     ret
+
+
+io_init:
+    ld hl, start_pointer    ; TODO: check if this affress is already used
+    ld (hl), 0       ; Address of queue start 
+    ld hl, end_pointer      
+    ld (hl), 0       ; Address of queue end
+
+io_gets:
+
+
+
+io_getc:
+    ld a, (start_pointer)
+    ld hl, end_pointer
+    sub (hl)            ; check if there are lements in queue
+    ld a, 0
+    ret z               ; return 0 if queue is still empty
+    ld hl, (start_pointer)      ; load address shift to HL
+    ld de, io_buf
+    add hl, de
+    ld a, (hl)          ; load character to A
+    inc l               ; increment the address of queue start (jump to 0x1000 if the size was 0x10FF)
+    ld (start_pointer), hl     ; load address of queue start back to 0xFFE
+    ret
+
 
 io_puts:
     push hl

@@ -105,3 +105,10 @@ Please note that the actual implementation is slightly more complicated, as to p
 ### `RST 0x38` - Mode 1 Interrupt handler
 
 Doesn't do anything, may be used for `db_break`, `tm_wait`, `io_recieve`.
+
+## Reserved addresses:
+| Address | Size in bytes | Description |
+|---------|:----:|-------------|
+|0x100 | 256 | IO buffer |
+| 0x200 | 1 | IO buffer start offset |
+| 0x201 | 1 | IO buffer end offset |
