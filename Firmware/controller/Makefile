@@ -1,5 +1,5 @@
 PYTHON = python
-
+# Usage: make 
 
 
 all:upload
@@ -16,3 +16,4 @@ ifdef ASM_FILE
 	$(MAKE) -C $(dir $(ASM_FILE)) $(addsuffix .bin, $(basename $(notdir $(ASM_FILE))))
 	$(PYTHON) hexify.py  $(addsuffix .bin, $(basename $(ASM_FILE))) > program.h
 endif
+

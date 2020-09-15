@@ -1,5 +1,5 @@
     include "bios.inc"
-    output "bios/bios.bin", t
+    output "bios.bin", t
 
 RST0:
     jp init
@@ -133,7 +133,7 @@ io_puts_loop:
     out (0x01), a
     inc hl
     or a
-    jp nz io_puts_loop
+    jp nz, io_puts_loop
 io_puts_ret:
     pop hl
     ret
