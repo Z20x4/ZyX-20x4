@@ -1,4 +1,4 @@
-ASM = SJASMPLUS
+ASM = sjasmplus
 ASM_FLAGS = --lst
 
 
@@ -6,7 +6,7 @@ ASM_FLAGS = --lst
 # 	@:
 
 %.bin:%.asm
-	$(ASM) $< 
+	$(ASM) $< $(ASM_FLAGS)
 
 .PHONY:clean
 clean:

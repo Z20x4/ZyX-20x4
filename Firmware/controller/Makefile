@@ -1,6 +1,9 @@
 PYTHON = python
 # Usage: make 
 
+%:
+	@printf "Usage: make TARGET [ASM_FILE=path/to/asm/file]\nTARGETs:\n build\n upload\n embed_asm\n h"
+
 
 all:upload
 

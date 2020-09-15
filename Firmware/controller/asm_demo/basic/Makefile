@@ -1,4 +1,4 @@
-ASM = SJASMPLUS
+ASM = sjasmplus
 ASM_FLAGS = --lst
 
 
