@@ -53,7 +53,7 @@ Please note that the actual implementation is slightly more complicated, as to p
 |0x0004         |`io_puts`     | Output null-terminated string beginning at address **`HL`** to screen |
 |0x0006         |`io_bufsize`  | Return number of unread chars in the input buffer via **`A`** |
 |0x0008         |`io_getc`     | Return one char from input buffer via **`A`** or `0` if it is empty |
-|0x000a         |`io_gets`     | Move contents of input buffer to the location specified by **`HL`** register  |
+|0x000a         |`io_gets`     | Move at most **`B`** bytes of input buffer to the location specified by **`HL`** register and return the amount read in **`A`**  |
 |0x000c         |`io_wait`     | Halt and wait for corresponding interrupt  |
 
 ### `RST 0x10` - Storage communication interface

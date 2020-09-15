@@ -135,29 +135,97 @@ io_putc:
     out (0x01), a
     ret
 
-
+; Tested
 io_init:
-    ld hl, start_pointer    ; TODO: check if this affress is already used
-    ld (hl), 0       ; Address of queue start 
-    ld hl, end_pointer      
-    ld (hl), 0       ; Address of queue end
-
-io_gets:
-
-
-
-io_getc:
-    ld a, (start_pointer)
-    ld hl, end_pointer
-    sub (hl)            ; check if there are lements in queue
-    ld a, 0
-    ret z               ; return 0 if queue is still empty
-    ld hl, (start_pointer)      ; load address shift to HL
+    push hl						; save registers contents
+	push de
+    ld hl, start_pointer        
     ld de, io_buf
-    add hl, de
-    ld a, (hl)          ; load character to A
-    inc l               ; increment the address of queue start (jump to 0x1000 if the size was 0x10FF)
-    ld (start_pointer), hl     ; load address of queue start back to 0xFFE
+    ld (hl), d                	; Write high byte of queue start to start_pointer
+    inc hl						
+    ld (hl), e 					; Write low byte of queue start to start_pointer
+    ld hl, end_pointer			
+    ld (hl), d					; Write high byte of queue end to end_pointer
+    inc hl
+    ld (hl), e                  ; Write low byte of queue endt to end_pointer
+	pop de
+    pop hl
+    ret
+    
+
+; TODO test this
+io_gets:                        ; Recieves destination buffer in HL, number of bytes to read in B, returns number of read bytes in A
+    push bc
+    ld a, 0                     ; check if B is 0
+    cp b                        
+    jp z, io_gets_loop_end
+    ld c, 0                     ; Counter of read bytes
+io_gets_loop: 
+    call io_getc
+    ld (hl), a                  ; load content of A to destination
+    or a                        ; check if A is zero
+    jp z, io_gets_loop_end       ; finish loop if getc returned 0
+    inc c                       
+    inc hl                      
+    djnz io_gets_loop           ; dec b
+io_gets_loop_end
+    ld a, c
+    pop bc
+    ret
+    
+
+; Tested
+io_getc:
+    push hl                     ; save registers contents
+    push de
+    ld a, (start_pointer)       ; load high byte of start_queue address
+    ld de, (end_pointer)        ; load high byte of end_queue address 
+    sub e                       ; compare a and e registers
+    jp nz, load_from_queue      ; go on execution if they are not equal
+    ld a, (start_pointer + 1)   ; load low byte of start_queue address
+    ld de, (end_pointer + 1)    ; load low byte of end_queue address
+    sub e
+    jp z, io_getc_end           ; if zero flag is set, a is 0 anyway, so no need to set it to 0, we can go ot return
+load_from_queue:
+    ld a, (start_pointer)       ; load start pointer to hl
+    ld h, a
+    ld a, (start_pointer + 1)
+    ld l, a
+    ld d, (hl)                  ; load character to D
+    inc l                       ; increment the address of queue start (jump to 0x%%00 if the size was 0x%%FF)
+    ld a,h                      ; load hl to 2 bytes in start_pointer address
+    ld (start_pointer), a       ; load address of queue start back to 0xFFE
+    ld a, l
+    ld (start_pointer + 1), a
+    ld a, d
+io_getc_end:
+    pop de                      ; restore registers content
+    pop hl
+    ret
+
+
+; Tested
+io_queue_push:  ;Value to push in A. Push a character to IO queue
+    push hl                     ; store registers content
+    push de
+	push bc
+    ld bc, (end_pointer)        ; load address of queue end to hl via bc
+	ld h, c
+	ld bc, (end_pointer + 1)
+	ld l, c
+ 	ld (hl), a                  ; store the character
+   	inc l                       ; move end of queue 
+  	 
+
+	ld d, h                     ; load hl to de
+	ld e, l
+	ld hl, end_pointer          ; load end of queue address to hl
+ 	ld (hl), d                  ; store new high byte of end of queue
+	inc hl
+	ld (hl), e                  ; store new low byte of queue
+	pop bc                      ; restore registers content
+	pop de
+	pop hl
     ret
 
 
