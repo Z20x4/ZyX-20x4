@@ -1,3 +1,6 @@
+PYTHON = python
+
+
 
 all:upload
 
@@ -11,5 +14,5 @@ upload:embed_asm
 embed_asm:
 ifdef ASM_FILE
 	$(MAKE) -C $(dir $(ASM_FILE)) $(addsuffix .bin, $(basename $(notdir $(ASM_FILE))))
-	py hexify.py  $(addsuffix .bin, $(basename $(ASM_FILE))) > program.h
+	$(PYTHON) hexify.py  $(addsuffix .bin, $(basename $(ASM_FILE))) > program.h
 endif
