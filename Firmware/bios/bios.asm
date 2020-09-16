@@ -152,10 +152,10 @@ io_init:
     pop hl
     ret
     
-
-; TODO test this
+; Tested
 io_gets:                        ; Recieves destination buffer in HL, number of bytes to read in B, returns number of read bytes in A
     push bc
+    push hl
     ld a, 0                     ; check if B is 0
     cp b                        
     jp z, io_gets_loop_end
@@ -170,6 +170,7 @@ io_gets_loop:
     djnz io_gets_loop           ; dec b
 io_gets_loop_end
     ld a, c
+    pop hl
     pop bc
     ret
     

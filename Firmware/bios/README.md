@@ -110,5 +110,5 @@ Doesn't do anything, may be used for `db_break`, `tm_wait`, `io_recieve`.
 | Address | Size in bytes | Description |
 |---------|:----:|-------------|
 |0x100 | 256 | IO buffer |
-| 0x200 | 2 | IO buffer start offset |
-| 0x202 | 2 | IO buffer end offset |
+| 0x200 | 2 | IO buffer start address |
+| 0x202 | 2 | IO buffer end address |
