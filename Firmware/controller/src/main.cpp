@@ -245,6 +245,7 @@ inline void ZPC_DisplayRAM(ZPC_Displayer *displayer)
 void ZPC_IO_HandleWrite(uint16_t address, uint8_t data)
 {
   uint8_t port = address & 0xff;
+  data = address >> 8;
   // ZPC_IO_Serial_WriteByte(data);
   switch (port)
   {
@@ -294,6 +295,12 @@ void ZPC_IO_HandleWrite(uint16_t address, uint8_t data)
   case 0x40: //Debug output: refresh displayer
     displayer.refresh();
     break;
+  case 0x41: // Set timer prescaler to 2 to the power of output data 
+  case 0x42: // Set timer compare register to data
+  case 0x43: // Set timer interrupt vector to the data
+  case 0x44: // Start the timer
+  case 0x45: // Stop the timer
+  case 0x47: // Timer init 
   default:
     ZPC_IO_Serial_WriteByte(data);
   }
@@ -313,6 +320,8 @@ uint8_t ZPC_IO_HandleRead(uint16_t address)
     // data_in = ZPC_IO_Serial_ReadByte(); //Todo: pop 1 byte from serial queue
     data_in = TQueue_pop(&serial_data_q);
     break;
+    
+  case 0x46: // **INPUT** Get timer count via data |
   default:
     // data_in = ZPC_IO_Serial_ReadByte(); //Todo: pop 1 byte from serial queue
     data_in = TQueue_pop(&serial_data_q);
