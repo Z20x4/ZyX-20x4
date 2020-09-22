@@ -1,6 +1,8 @@
     include "bios.inc"
+    incbin "unit_tests.bin"
     output "bios.bin", t
 
+    .porg 0x00
 RST0:
     jp init
     
@@ -42,6 +44,7 @@ RST38:
 
     ; .porg 0x100
 lookup:
+    ; add hl, bc
     push de       ;save handler index
     di            ;disable nested interrupts
     exx           ;replace registers with their shadow copies
@@ -84,38 +87,38 @@ RST8_LOOKUP: ;IO handlers
     .dw io_init
     .dw io_putc
     .dw io_puts
-    .dw io_bufsize
+    ; .dw io_bufsize ;TODO
     .dw io_getc
     .dw io_gets
-    .dw io_wait
+    ; .dw io_wait
 
     ; .porg 0x210
 RST10_LOOKUP: ;Storage handlers
-    .dw st_init
-    .dw st_steps
-    .dw st_moves
-    .dw st_chunks
-    .dw st_readc
-    .dw st_writec
+    ; .dw st_init    ;TODO
+    ; .dw st_steps   ;TODO
+    ; .dw st_moves   ;TODO
+    ; .dw st_chunks  ;TODO
+    ; .dw st_readc   ;TODO
+    ; .dw st_writec  ;TODO
 
 RST18_LOOKUP: ;Virtual memory handlers
-    .dw vm_init
-    .dw vm_reset
-    .dw vm_pt_load
-    .dw vm_pt_store
+    ; .dw vm_init    ;TODO
+    ; .dw vm_reset   ;TODO
+    ; .dw vm_pt_load ;TODO
+    ; .dw vm_pt_store;TODO
 
 RST20_LOOKUP: ;Timer handlers
-    .dw tm_init
-    .dw tm_scales
-    .dw tm_cmps
-    .dw tm_ints
-    .dw tm_start
-    .dw tm_stop
-    .dw tm_wait
-    .dw tm_valg
+    ; .dw tm_init    ;TODO
+    ; .dw tm_scales  ;TODO
+    ; .dw tm_cmps    ;TODO
+    ; .dw tm_ints    ;TODO
+    ; .dw tm_start   ;TODO
+    ; .dw tm_stop    ;TODO
+    ; .dw tm_wait    ;TODO
+    ; .dw tm_valg    ;TODO
 
 RST28_LOOKUP: ;Debug handler
-    .dw db_break
+    ; .dw db_break   ;TODO
 
 RST30_LOOKUP: ;Other device custom handlers
     ;TODO
@@ -124,10 +127,13 @@ RST30_LOOKUP: ;Other device custom handlers
     .porg 0x100          ; dreserve space for io bufffer
 io_buf:                     
     .block 0x100         ; io buffer content
+
+    .porg 0x200         
 start_pointer:           ; io buffer begin offset
-    .db 00  
+    .dw 0000  
+    .porg 0x202         
 end_pointer:             ; io buffer end offset
-    .db 00
+    .dw 0000
 
 ; Args: character to print in A
     .porg 0x220
@@ -141,14 +147,10 @@ io_init:
 	push de
     ld hl, start_pointer        
     ld de, io_buf
-    ld (hl), d                	; Write high byte of queue start to start_pointer
-    inc hl						
-    ld (hl), e 					; Write low byte of queue start to start_pointer
+    ld (hl), de
     ld hl, end_pointer			
-    ld (hl), d					; Write high byte of queue end to end_pointer
-    inc hl
-    ld (hl), e                  ; Write low byte of queue endt to end_pointer
-	pop de
+	ld (hl), de
+    pop de
     pop hl
     ret
     
@@ -242,12 +244,19 @@ io_puts_ret:
     pop hl
     ret
 
-    .porg 0x240
-init:
-    ld sp, 0x800 
+    .porg 0x300
+init: 
+    ld sp, stack_top
     ld a, 'r'
+    push af
     ld de, 0x0002
     rst 0x08        ;RST08 with e=0x02 calls putc
+    ; jp stack_top
     halt
 
+stack_bottom:
+    .porg 0xFF00
+stack_top:
+    nop
+    
     outend
