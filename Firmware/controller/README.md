@@ -2,6 +2,20 @@
 A repository containing the firmware for a modern Z80 based PC.
 
 
+### Output ports specifications
+| Port | Specification |
+|------|---------------|
+| 0x01 | Text output |
+| 0x40 | Timer init |
+| 0x41 | Set timer prescaler to 2 to the power of output data |
+| 0x42 | Set timer compare register to the power of data |
+| 0x43 | Set timer interrupt vector to the data |
+| 0x44 | Set timer interrupt vector to data |
+| 0x45 | Start the timer |
+| 0x46 | Stop the timer |
+| 0x47 | **INPUT** Get timer count via data |
+
+
 ### Z80 Data pins
 | Z80 pin | Arduino pin |
 |-------|-------|
