@@ -9,7 +9,7 @@
 
 #define program program_CUSTOM
 
-#define DEBUG_MODE (R|W)
+#define DEBUG_MODE (R | W)
 // #define DEBUG_MODE (0)
 #define IO_INT 0x04
 
@@ -64,7 +64,6 @@ enum clock_mode_en
 enum clock_mode_en clock_mode;
 int tacts_per_button = 1;
 int current_tacts = 0;
-
 
 uint8_t wait_continue = 0;
 void _waitSignal(uint8_t pin, int state)
@@ -137,8 +136,9 @@ void ZPC_Clock_Change(enum clock_mode_en new_mode)
 
 void ZPC_Clock_Handle()
 {
-  if(digitalRead(CLOCK_CHNG_)==LOW){
-    ZPC_Clock_Change((clock_mode_en)((!digitalRead(CLOCK_TYPE_PIN_1_))|(digitalRead(CLOCK_TYPE_PIN_2_)<<1)));
+  if (digitalRead(CLOCK_CHNG_) == LOW)
+  {
+    ZPC_Clock_Change((clock_mode_en)((!digitalRead(CLOCK_TYPE_PIN_1_)) | (digitalRead(CLOCK_TYPE_PIN_2_) << 1)));
   }
 
   switch (clock_mode)
@@ -154,7 +154,8 @@ void ZPC_Clock_Handle()
     // Serial.print("\nWait for EXT_CLK LOW...\n");
     current_tacts = (current_tacts + 1) % tacts_per_button;
     Serial.print(" ");
-    if(!current_tacts){
+    if (!current_tacts)
+    {
       _waitSignal(EXT_CLOCK, LOW);
       Serial.print(".\n");
       digitalWrite(CLK, LOW);
@@ -168,8 +169,6 @@ void ZPC_Clock_Handle()
     break;
   }
 }
-
-
 
 // ------------------------------------------------------------------Interrupt Queue------------------------------------------------------------------------------------
 struct TQueue
@@ -241,6 +240,93 @@ inline void ZPC_DisplayRAM(ZPC_Displayer *displayer)
 // ------------------------------------------------------------------Event Handlers--------------------------------------------------------------------------------------
 // uint8_t serial_input_buf = 0x00;
 // uint8_t buf_has_data = 0;
+
+// ------------------------------------------------------------------Multitasking Timer--------------------------------------------------------------------------------------
+// TODO: Change to proper pin
+int mt_OUT_PIN = 22;
+#define mt_CCRA TCCR3A
+#define mt_CCRB TCCR3B
+#define mt_OCRA OCR3A
+#define mt_OCRB OCR3B
+#define mt_CNT TCNT3
+#define mt_MODE WGM32
+#define mt_MSK TIMSK3
+#define mt_OIE OCIE3A
+#define mt_CS0 CS30
+#define mt_CS1 CS31
+#define mt_CS2 CS32
+
+// TODO: Find out proper initial values
+uint16_t mt_init_ocr = 20000;
+
+ISR(TIMER3_COMPA_vect)
+{
+  digitalWrite(mt_OUT_PIN, digitalRead(mt_OUT_PIN) ^ 1);
+}
+
+void mt_set_prescaler(int prescaler);
+
+void mt_init()
+{
+  noInterrupts();
+
+  pinMode(mt_OUT_PIN, OUTPUT);
+  mt_CCRA = 0;
+  mt_CCRB = 0;
+  mt_CNT = 0;
+  mt_set_prescaler(256);
+  mt_OCRA = mt_init_ocr;
+  mt_CCRB |= (1 << mt_MODE); // CTC MODE
+  mt_MSK |= (1 << mt_OIE);
+
+  interrupts();
+}
+
+void mt_start()
+{
+  mt_set_prescaler(256);
+}
+
+void mt_stop()
+{
+  mt_set_prescaler(0);
+}
+
+void mt_set_prescaler(int prescaler)
+{
+  switch (prescaler)
+  {
+  case 0: // Stop the timer
+    mt_CCRB &= 0b11111000;
+  case 1:
+    mt_CCRB &= 0b11111000;
+    mt_CCRB += 0b001;
+  case 8:
+    mt_CCRB &= 0b11111000;
+    mt_CCRB += 0b010;
+  case 64:
+    mt_CCRB &= 0b11111000;
+    mt_CCRB += 0b011;
+  case 256:
+    mt_CCRB &= 0b11111000;
+    mt_CCRB += 0b100;
+  case 1024:
+    mt_CCRB &= 0b11111000;
+    mt_CCRB += 0b101;
+  default:
+    break;
+  }
+}
+
+void mt_set_compare_register(int new_value)
+{
+  mt_OCRA = new_value;
+}
+
+void mt_set_interrupt_vector(uint8_t vector)
+{
+}
+
 //--------------------------------------------------------------------------IO Write/Read------------------------------------------------------------------------------
 void ZPC_IO_HandleWrite(uint16_t address, uint8_t data)
 {
@@ -295,12 +381,24 @@ void ZPC_IO_HandleWrite(uint16_t address, uint8_t data)
   case 0x40: //Debug output: refresh displayer
     displayer.refresh();
     break;
-  case 0x41: // Set timer prescaler to 2 to the power of output data 
+  case 0x41: // Set timer prescaler to 2 to the power of output data
+    if (data == 0 || data == 3 || data == 6 || data == 8 || data == 10)
+    {
+      mt_set_prescaler(1 << data);
+    }
+    break;
   case 0x42: // Set timer compare register to data
+    mt_set_compare_register(data);
+    break;
   case 0x43: // Set timer interrupt vector to the data
+    mt_set_interrupt_vector(data);
+    break;
   case 0x44: // Start the timer
+    mt_start();
   case 0x45: // Stop the timer
-  case 0x47: // Timer init 
+    mt_stop();
+  case 0x47: // Timer init
+    mt_init();
   default:
     ZPC_IO_Serial_WriteByte(data);
   }
@@ -320,7 +418,7 @@ uint8_t ZPC_IO_HandleRead(uint16_t address)
     // data_in = ZPC_IO_Serial_ReadByte(); //Todo: pop 1 byte from serial queue
     data_in = TQueue_pop(&serial_data_q);
     break;
-    
+
   case 0x46: // **INPUT** Get timer count via data |
   default:
     // data_in = ZPC_IO_Serial_ReadByte(); //Todo: pop 1 byte from serial queue
@@ -396,8 +494,10 @@ void ZPC_Serial_HandleCommand(uint8_t command)
   {
   case 0x00:
     break;   //DOTO
-  case 0x82:  // Change tacts per button click
-    while(!Serial.available()){};
+  case 0x82: // Change tacts per button click
+    while (!Serial.available())
+    {
+    };
     tacts_per_button = Serial.read();
     Serial.print(tacts_per_button);
     break;
@@ -522,6 +622,9 @@ void ZPC_IO_Handle()
 // -----------------------------------------------------------------------Main code--------------------------------------------------------------------------------------
 void setup()
 {
+  // TODO: Check if this is needed
+  mt_init();
+
   Serial.begin(9600);
   Serial.print("init\n");
 
@@ -549,7 +652,6 @@ void setup()
   pinMode(CLOCK_TYPE_PIN_1_, INPUT_PULLUP);
   pinMode(CLOCK_TYPE_PIN_2_, INPUT_PULLUP);
   pinMode(CLOCK_CHNG_, INPUT_PULLUP);
-
 
   clock_mode = CLK_TIMER;
   pinMode(EXT_CLOCK, INPUT_PULLUP);
