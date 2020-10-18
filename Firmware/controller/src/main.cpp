@@ -243,7 +243,7 @@ inline void ZPC_DisplayRAM(ZPC_Displayer *displayer)
 
 // ------------------------------------------------------------------Multitasking Timer--------------------------------------------------------------------------------------
 // TODO: Change to proper pin
-int mt_OUT_PIN = 22;
+int mt_OUT_PIN = LED_BUILTIN;
 #define mt_CCRA TCCR3A
 #define mt_CCRB TCCR3B
 #define mt_OCRA OCR3A
