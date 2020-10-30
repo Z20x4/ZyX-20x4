@@ -41,7 +41,7 @@ This repository contains the **firmware** for the system controller and scripts/
 - SN74HC00N
 - switch 1825255-1 x2
 - SN74LVC157APWR
-- D-trig x4 74 series
+- D-trig x4 74 series (Maybe, SN74174N). Same schematic with SN74LS174, SN74S174 N or D series
 - Nokia LCD
 - Yageo CC1206KKX7R0BB104 x8 (10) 100nF
 - resistor SFR2500001002JA500 (10K) x52
