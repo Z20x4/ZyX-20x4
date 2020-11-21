@@ -111,14 +111,14 @@ RST18_LOOKUP: ;Virtual memory handlers
     ; .dw vm_pt_store;TODO
 
 RST20_LOOKUP: ;Timer handlers
-    ; .dw tm_init    ;TODO
-    ; .dw tm_scales  ;TODO
-    ; .dw tm_cmps    ;TODO
-    ; .dw tm_ints    ;TODO
-    ; .dw tm_start   ;TODO
-    ; .dw tm_stop    ;TODO
+    .dw tm_init    ;TODO
+    .dw tm_scales  ;TODO
+    .dw tm_cmps    ;TODO
+    .dw tm_ints    ;TODO
+    .dw tm_start   ;TODO
+    .dw tm_stop    ;TODO
     ; .dw tm_wait    ;TODO
-    ; .dw tm_valg    ;TODO
+    .dw tm_valg    ;TODO
 
 RST28_LOOKUP: ;Debug handler
     ; .dw db_break   ;TODO
@@ -138,6 +138,9 @@ start_pointer:           ; io buffer begin offset
 end_pointer:             ; io buffer end offset
     .dw 0000
 
+
+; IO FUNCTIONS
+
 ; Args: character to print in A
     .porg 0x220
 io_putc:
@@ -151,7 +154,7 @@ io_init:
     ld hl, start_pointer        
     ld de, io_buf
     ld (hl), de
-    ld hl, end_pointer			
+    ld hl, end_pointer
 	ld (hl), de
     pop de
     pop hl
@@ -173,12 +176,22 @@ io_gets_loop:
     inc c                       
     inc hl                      
     djnz io_gets_loop           ; dec b
-io_gets_loop_end
+io_gets_loop_end:
     ld a, c
     pop hl
     pop bc
     ret
     
+
+io_bufsize:
+    push hl
+    ld hl, (start_pointer)
+    ld de, (end_pointer)
+    ld a, e
+    sub l
+    pop hl
+    ret
+
 
 ; Tested
 io_getc:
@@ -193,16 +206,10 @@ io_getc:
     sub e
     jp z, io_getc_end           ; if zero flag is set, a is 0 anyway, so no need to set it to 0, we can go ot return
 load_from_queue:
-    ld a, (start_pointer)       ; load start pointer to hl
-    ld h, a
-    ld a, (start_pointer + 1)
-    ld l, a
+    ld hl, (start_pointer)
     ld d, (hl)                  ; load character to D
     inc l                       ; increment the address of queue start (jump to 0x%%00 if the size was 0x%%FF)
-    ld a,h                      ; load hl to 2 bytes in start_pointer address
-    ld (start_pointer), a       ; load address of queue start back to 0xFFE
-    ld a, l
-    ld (start_pointer + 1), a
+    ld (start_pointer), hl
     ld a, d
 io_getc_end:
     pop de                      ; restore registers content
@@ -215,10 +222,7 @@ io_queue_push:  ;Value to push in A. Push a character to IO queue
     push hl                     ; store registers content
     push de
 	push bc
-    ld bc, (end_pointer)        ; load address of queue end to hl via bc
-	ld h, c
-	ld bc, (end_pointer + 1)
-	ld l, c
+    ld hl, (end_pointer)        ; load address of queue end to hl via 
  	ld (hl), a                  ; store the character
    	inc l                       ; move end of queue 
   	 
@@ -226,9 +230,7 @@ io_queue_push:  ;Value to push in A. Push a character to IO queue
 	ld d, h                     ; load hl to de
 	ld e, l
 	ld hl, end_pointer          ; load end of queue address to hl
- 	ld (hl), d                  ; store new high byte of end of queue
-	inc hl
-	ld (hl), e                  ; store new low byte of queue
+ 	ld (hl), de                  ; store new high byte of end of queu                  ; store new low byte of queue
 	pop bc                      ; restore registers content
 	pop de
 	pop hl
@@ -247,11 +249,48 @@ io_puts_ret:
     pop hl
     ret
 
-;----RST 0x10 STORAGE START----;
-st_init:
+io_wait:
+    call io_bufsize
+    ret nz
+    halt
+    jr io_wait
 
+;---IO FUNCTIONS END---;
 
-;----RST 0x10 STORAGE END----;
+;---STORAGE FUNCTIONS START---;
+
+;---STORAGE FUNCTIONS END---;
+
+; TIMER FUNCTIONS
+tm_init:
+    out (0x47), a
+    ret
+
+tm_scales:
+    out (0x41), a
+    ret
+
+tm_cmps:
+    out (0x42), a
+    ret
+
+tm_ints:
+    out (0x43), a
+    ret
+
+tm_start:
+    out (0x44), a
+    ret
+
+tm_stop:
+    out (0x45), a
+    ret
+
+tm_valg:
+    in a, (0x46)
+    ret
+
+; END OF TIMER FUNCTIONS
 
 
 
@@ -271,3 +310,5 @@ stack_top:
     nop
     
     outend
+
+

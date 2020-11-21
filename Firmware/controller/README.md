@@ -1,6 +1,18 @@
 # ZyX-20x4
 A repository containing the firmware for a modern Z80 based PC.
 
+### Output ports specifications
+| Port | Specification |
+|------|---------------|
+| 0x01 | Text output |
+| 0x41 | Set timer prescaler to 2 to the power of output data |
+| 0x42 | Set timer compare register to data |
+| 0x43 | Set timer interrupt vector to the data |
+| 0x44 | Start the timer |
+| 0x45 | Stop the timer |
+| 0x46 | **INPUT** Get timer count via data |
+| 0x47 | Timer init |
+
 
 ### Z80 Data pins
 | Z80 pin | Arduino pin |
@@ -42,3 +54,10 @@ A repository containing the firmware for a modern Z80 based PC.
 | USER_LED | 13 |
 | M1_ | 15 |
 | EXT_CLOCK | A5 |
+| Screen | A0 |
+| Screen | A1 |
+| Screen | A2 |
+| Screen | A3 |
+| Screen | A4 |
+
+

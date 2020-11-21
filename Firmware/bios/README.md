@@ -116,3 +116,66 @@ Doesn't do anything, may be used for `db_break`, `tm_wait`, `io_recieve`.
 |0x100 | 256 | IO buffer |
 | 0x200 | 2 | IO buffer start address |
 | 0x202 | 2 | IO buffer end address |
+
+
+
+## Interrupts handling
+In general, two types of hardware interrupts are used: NMI and Mode 2 interrupt. 
+Mode 1 interrupt is also supported, although it's use is limited.
+
+### NMI
+NMI handler will be executed in Kernel Mode
+NMI is reserved for events regarding the kernel of the operating system, such as 
+- MMU interrupts (page fault, segmentation fault)
+- Timer interrupts for preemptive multitasking
+- Syscalls
+
+All other interrupts should use Mode 2 interrupts.
+Handlers of them will be executed in User Mode and can be modified by user program
+
+
+```
+NMI:
+     ;rip
+    --> ld A, (reserved_nmi_addr)
+    tst A
+    jneq ARDUINO_NMI ;timer NMI
+    ... ; Memory NMI or syscall
+ARDUINO_NMI:
+    in A, (reserved_arduino_port)
+    tst A
+    jneq ...
+```
+
+## Unified syscall service routine (USSR)
+Implementation pseudocode example
+```
+    ;-----------  User side  ----------------
+    ld A, syscall_num
+    ld BC, syscall_arg
+    SET_KERNEL 1    ; throws NMI with code SET_KERNEL_NMI
+
+    ;----------- Kernel side --------------
+NMI:
+     ;rip
+    --> ld A, (reserved_nmi_addr)
+    
+    tst A
+    jneq ARDUINO_NMI ;timer NMI
+    ; if(A == SET_KERNEL_NMI){
+    ; call syscall;
+    ; SET_KERNEL 0;
+    ; retn
+    ;}
+    
+    ... ; Memory NMI or syscall
+ARDUINO_NMI:
+    in A, (reserved_arduino_port)
+    tst A
+    jneq ...
+```
+
+MMU has a bit which determines what if a program is in the kernel mode right now.
+If a process tries to modyfy this bit while in user mode, MMU throws NMI and sets its internal rNMI_CAUSE register to NMI_SET_KERNEL.
+In the NMI handler OS reads rNMI_CAUSE register to determine the cause of interrups; if it equals to NMI_SET_KERNEL, it is interpreted as a system call: a system call handler corresponding to the A register is called, and results are returned to the callee process. 
+If rNMI_CAUSE requires OS code to be executed, SET_KERNEL 1 is used inside the NMI handler.

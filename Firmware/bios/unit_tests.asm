@@ -25,23 +25,61 @@ UT_io_putc:
 
 start: equ start_pointer
 
+
+UT_io_queue_push:
+    call io_init 
+    ld a, 'a'
+
+    ld de, 0
+    ld bc, 0
+    ld hl, 0
+    call io_queue_push
+    TEST_DREG de, 0
+    TEST_DREG bc, 0
+    TEST_DREG hl, 0
+
+    TEST_MEMORY_WORD start_pointer, 0x0100
+    TEST_MEMORY_WORD end_pointer, 0x0101
+
+    ld hl, (start_pointer)
+    ld a, (hl)
+    TEST_A 'a'
+    ld a, 'f'
+    call io_getc
+
+ TC_END
+
+UT_io_getc:
+    call io_init
+    ld a, 'a'
+    call io_queue_push
+    ld a, 's'
+    call io_getc
+    TEST_A 'a'
+    TEST_MEMORY_WORD start_pointer, 0x0101
+    TEST_MEMORY_WORD end_pointer, 0x0101
+ TC_END
+
+UT_io_bufsize:
+    call io_init
+    call io_bufsize
+    TEST_REG a, 0
+    call io_queue_push
+    call io_bufsize
+    TEST_REG a, 1
+    call io_getc
+    call io_bufsize
+    TEST_REG a, 0    
+    
+ TC_END
+
+
 UT_io_init:
     
     DEFAULT_REGS
     call io_init
-    ; ld de, 0xffff
-    ; ld hl, 0xf0f0
-    ; ld a, 0x01
-    ; ld (hl), a
-    ; TEST_MEMORY_BYTE start, 0x01
-    ; TEST_MEMORY_WORD start_pointer, io_buf
-    ; TEST_MEMORY_BYTE start_pointer, 0x01
-    ; TEST_MEMORY_BYTE start_pointer+1, 0x00
-
     TEST_MEMORY_WORD start_pointer, 0x0100
-
-    TEST_MEMORY_BYTE end_pointer, 0x01
-    TEST_MEMORY_BYTE end_pointer+1, 0x00
+    TEST_MEMORY_WORD end_pointer, 0x0100
  
  TC_END
 
