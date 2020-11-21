@@ -54,3 +54,10 @@ A repository containing the firmware for a modern Z80 based PC.
 | USER_LED | 13 |
 | M1_ | 15 |
 | EXT_CLOCK | A5 |
+| Screen | A0 |
+| Screen | A1 |
+| Screen | A2 |
+| Screen | A3 |
+| Screen | A4 |
+
+
