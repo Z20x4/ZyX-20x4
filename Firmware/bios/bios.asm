@@ -258,6 +258,37 @@ io_wait:
 ;---IO FUNCTIONS END---;
 
 ;---STORAGE FUNCTIONS START---;
+st_init:
+    out (0x48), a
+    in a, (0x00)
+    ret
+
+st_seek:
+    push bc
+    ld c, 0x49 ;0x49 is the output port for the first byte of address
+    outi       ;output into port C data stored at HL, increment HL
+    inc c      ;Increment C, next port in the next byte of address
+    outi       ;Repeat for all four bytes
+    inc c 
+    outi 
+    inc c 
+    outi 
+    inc c  
+    pop bc
+    in a, (0x00)
+    ret
+
+st_read:
+    ld a, h   ;load into A, since out with immediates only works with A
+    out (0x53), a
+    in a, (0x00)
+    ret
+
+st_write:
+    ld a, h   ;load into A, since out with immediates only works with A
+    out (0x54), a
+    in a, (0x00)
+    ret
 
 ;---STORAGE FUNCTIONS END---;
 
