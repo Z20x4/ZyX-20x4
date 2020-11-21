@@ -2,10 +2,14 @@
 
 #include <stdio.h>
 
+#include "../sd2card/Sd2Card.h"
+
 #include "ZPC_funcs.h"
 #include "ZPC_IO_funcs.h"
 #include "ZPC_visualisation.h"
 #include "../program.h"
+#include "ZPC_storage.h"
+
 
 #define program program_CUSTOM
 
@@ -28,6 +32,7 @@ uint8_t M1 = 0;
 uint16_t address = 0xffff;
 uint8_t data = 0xff;
 uint8_t int_vector = 0xff;
+uint8_t status = 0;
 
 uint8_t program_TEMPLATE[] = {
     0x00, 0x00, 0x00, 0x00, //0x00
@@ -244,6 +249,7 @@ inline void ZPC_DisplayRAM(ZPC_Displayer *displayer)
 // ------------------------------------------------------------------Multitasking Timer--------------------------------------------------------------------------------------
 // TODO: Change to proper pin
 int mt_OUT_PIN = LED_BUILTIN;
+
 #define mt_CCRA TCCR3A
 #define mt_CCRB TCCR3B
 #define mt_OCRA OCR3A
@@ -274,11 +280,10 @@ void mt_init()
   mt_CCRA = 0;
   mt_CCRB = 0;
   mt_CNT = 0;
-  mt_set_prescaler(256);
   mt_OCRA = mt_init_ocr;
   mt_CCRB |= (1 << mt_MODE); // CTC MODE
   mt_MSK |= (1 << mt_OIE);
-
+  mt_set_prescaler(256);
   interrupts();
 }
 
@@ -298,21 +303,27 @@ void mt_set_prescaler(int prescaler)
   {
   case 0: // Stop the timer
     mt_CCRB &= 0b11111000;
+    break;
   case 1:
     mt_CCRB &= 0b11111000;
     mt_CCRB += 0b001;
+    break;
   case 8:
     mt_CCRB &= 0b11111000;
     mt_CCRB += 0b010;
+    break;
   case 64:
     mt_CCRB &= 0b11111000;
     mt_CCRB += 0b011;
+    break;
   case 256:
     mt_CCRB &= 0b11111000;
     mt_CCRB += 0b100;
+    break;
   case 1024:
     mt_CCRB &= 0b11111000;
     mt_CCRB += 0b101;
+    break;
   default:
     break;
   }
@@ -325,7 +336,10 @@ void mt_set_compare_register(int new_value)
 
 void mt_set_interrupt_vector(uint8_t vector)
 {
+  // TODO: discuss this. (interrupt ahould br NMI??? Then no vector)
 }
+
+
 
 //--------------------------------------------------------------------------IO Write/Read------------------------------------------------------------------------------
 void ZPC_IO_HandleWrite(uint16_t address, uint8_t data)
@@ -395,10 +409,40 @@ void ZPC_IO_HandleWrite(uint16_t address, uint8_t data)
     break;
   case 0x44: // Start the timer
     mt_start();
+    break;
   case 0x45: // Stop the timer
     mt_stop();
+    break;
   case 0x47: // Timer init
     mt_init();
+    break;
+  case 0x48: // Storage init
+    ZPC_st_init();
+    break;
+  case 0x49: // Save lowest byte
+    ZPC_st_save_address_byte(0, data);
+    break;
+
+  case 0x50: // Save second lowest byte
+    ZPC_st_save_address_byte(1, data);
+    break;
+  
+  case 0x51: // Save third little byte
+    ZPC_st_save_address_byte(2, data);
+    break;
+
+  case 0x52: // Save highest byte
+    ZPC_st_save_address_byte(3, data);
+    break;
+
+  case 0x53: // Read block from storage
+    ZPC_st_read_block(data);
+    break;
+
+  case 0x54: // Write block to storage
+    ZPC_st_write_block(data);  
+
+
   default:
     ZPC_IO_Serial_WriteByte(data);
   }
@@ -411,6 +455,10 @@ uint8_t ZPC_IO_HandleRead(uint16_t address)
   uint8_t port = address & 0xff;
   switch (port)
   {
+
+  case 0x00: // Return errno
+    data_in = status;
+    break;
   case 0x0a:
     data_in = ZPC_IO_ArduinoROM_ReadByte(address);
     break;
