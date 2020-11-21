@@ -90,11 +90,14 @@ RST8_LOOKUP: ;IO handlers
     ; .dw io_bufsize ;TODO
     .dw io_getc
     .dw io_gets
-    ; .dw io_wait
+    ; .dw io_wait ;???
 
     ; .porg 0x210
 RST10_LOOKUP: ;Storage handlers
-    ; .dw st_init    ;TODO
+    .dw st_init    ;TODO
+    .dw st_seek    ;TODO
+    .dw st_read    ;TODO
+    .dw st_write   ;TODO
     ; .dw st_steps   ;TODO
     ; .dw st_moves   ;TODO
     ; .dw st_chunks  ;TODO
@@ -243,6 +246,14 @@ io_puts_loop:
 io_puts_ret:
     pop hl
     ret
+
+;----RST 0x10 STORAGE START----;
+st_init:
+
+
+;----RST 0x10 STORAGE END----;
+
+
 
     .porg 0x300
 init: 

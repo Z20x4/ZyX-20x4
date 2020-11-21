@@ -61,11 +61,15 @@ Please note that the actual implementation is slightly more complicated, as to p
 | Register `DE` | Handler name | Description |
 |---------------|--------------|-------------|
 |0x0000         |` st_init `   | Initialize storage interface system|
+|0x0002         |` st_seek `   | Move cursor to block id, stored at **`HL`**|
+|0x0004         |` st_read `   | Read block from storge into memory at 8-bit address **`H`**|
+|0x0006         |` st_write `  | Write block to storage from memory at 8-bit address **`H`**| 
+<!-- 
 |0x0002         |` st_steps `  | Set the step size to 2 to the power of **`A`**(max 32) |
 |0x0004         |` st_moves `  | Move cursor by the number of steps specified in **`HL`** |
 |0x0006         |` st_chunks ` | Set the chunk size to 2 to the power of **`A`**(max 32) |
 |0x0008         |` st_readc `  | Read one chunk from storage into location specified by **`HL`**|
-|0x000a         |` st_writec ` | Write one chunk starting at **`HL`** into the storage device |
+|0x000a         |` st_writec ` | Write one chunk starting at **`HL`** into the storage device | -->
 
 ### `RST 0x18` - Virtual memory management
 
