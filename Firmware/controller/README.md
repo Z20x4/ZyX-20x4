@@ -59,5 +59,9 @@ A repository containing the firmware for a modern Z80 based PC.
 | Screen | A2 |
 | Screen | A3 |
 | Screen | A4 |
+| SD card SPI CS | A6 |
+| SD card SPI CLK | A7 |
+| SD card SPI MOSI | A8 |
+| SD card SPI MISO | A9 |
 
 
