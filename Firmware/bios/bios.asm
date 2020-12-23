@@ -1,5 +1,5 @@
     include "bios.inc"
-    incbin "unit_tests.bin"
+    ; incbin "unit_tests.bin"
     output "bios.bin", t
 
     .porg 0x00
@@ -39,6 +39,10 @@ RST30:
 
     .porg 0x38
 RST38:
+    push a
+    in a, (0x01)
+    call io_queue_push
+    pop a
     ei
     reti
 
@@ -289,13 +293,11 @@ tm_valg:
 
     .porg 0x300
 init: 
-    ld sp, stack_top
-    ld a, 'r'
-    push af
-    ld de, 0x0002
-    rst 0x08        ;RST08 with e=0x02 calls putc
-    ; jp stack_top
-    halt
+    call io_init
+    
+    
+    jp 
+    
 
 stack_bottom:
     .porg 0xFF00
