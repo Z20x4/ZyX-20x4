@@ -19,8 +19,7 @@
 
 #define CLOCK_TYPE_PIN_1_ 6
 #define CLOCK_TYPE_PIN_2_ 7
-
-#define CLOCK_CHNG_ 8 //19
+#define CLOCK_TYPE_PIN_3_ 8 //19
 
 char s[30];
 
@@ -112,6 +111,7 @@ void ZPC_Clock_Config()
 
   // clock_mode = CLK_MAINLOOP;
 }
+
 inline void ZPC_Clock_Stop()
 {
   TCCR1A &= ~(1 << COM1A0); //Set CLK pin to free
@@ -699,14 +699,16 @@ void setup()
   // digitalWrite(INT_, HIGH); //!!
   pinMode(CLOCK_TYPE_PIN_1_, INPUT_PULLUP);
   pinMode(CLOCK_TYPE_PIN_2_, INPUT_PULLUP);
-  pinMode(CLOCK_CHNG_, INPUT_PULLUP);
+  pinMode(CLOCK_TYPE_PIN_3_, INPUT_PULLUP);
 
   clock_mode = CLK_TIMER;
   pinMode(EXT_CLOCK, INPUT_PULLUP);
   ZPC_Clock_Config();
   // ZPC_Clock_Start(); // Mode 0 by default (Arduino clock source)
   // ZPC_Clock_Change(CLK_BUTTON);
-  ZPC_Clock_Change((clock_mode_en)((!digitalRead(CLOCK_TYPE_PIN_1_)) | (digitalRead(CLOCK_TYPE_PIN_2_) << 1)));
+       if(digitalRead(CLOCK_TYPE_PIN_1_))ZPC_Clock_Change(CLK_BUTTON);
+  else if(digitalRead(CLOCK_TYPE_PIN_2_))ZPC_Clock_Change(CLK_MAINLOOP);
+  else if(digitalRead(CLOCK_TYPE_PIN_3_))ZPC_Clock_Change(CLK_TIMER);
 
 
   ZPC_ProcStart();
