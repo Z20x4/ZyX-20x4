@@ -1,5 +1,7 @@
     include "bios.inc"
-    incbin "unit_tests.bin"
+    IFDEF TEST
+        incbin "unit_tests.bin"
+    ENDIF
     output "bios.bin", t
 
     .porg 0x00
@@ -39,6 +41,10 @@ RST30:
 
     .porg 0x38
 RST38:
+    push a
+    in a, (0x01)
+    call io_queue_push
+    pop a
     ei
     reti
 
@@ -139,7 +145,7 @@ end_pointer:             ; io buffer end offset
     .dw 0000
 
 
-; IO FUNCTIONS
+;---IO FUNCTIONS START---;
 
 ; Args: character to print in A
     .porg 0x220
@@ -230,7 +236,7 @@ io_queue_push:  ;Value to push in A. Push a character to IO queue
 	ld d, h                     ; load hl to de
 	ld e, l
 	ld hl, end_pointer          ; load end of queue address to hl
- 	ld (hl), de                  ; store new high byte of end of queu                  ; store new low byte of queue
+ 	ld (hl), de                 ; store new high byte of end of queu                  ; store new low byte of queue
 	pop bc                      ; restore registers content
 	pop de
 	pop hl
@@ -249,6 +255,7 @@ io_puts_ret:
     pop hl
     ret
 
+
 io_wait:
     call io_bufsize
     ret nz
@@ -265,10 +272,10 @@ st_init:
 
 st_seek:
     push bc
-    ld c, 0x49 ;0x49 is the output port for the first byte of address
-    outi       ;output into port C data stored at HL, increment HL
-    inc c      ;Increment C, next port in the next byte of address
-    outi       ;Repeat for all four bytes
+    ld c, 0x49                  ; 0x49 is the output port for the first byte of block address
+    outi                        ; output data stored at HL into port C, then increment HL
+    inc c                       ; Increment C, next port is for the next byte of address
+    outi                        ; Repeat for all four bytes
     inc c 
     outi 
     inc c 
@@ -325,15 +332,13 @@ tm_valg:
 
 
 
-    .porg 0x300
+;    .porg 0x300
 init: 
-    ld sp, stack_top
-    ld a, 'r'
-    push af
-    ld de, 0x0002
-    rst 0x08        ;RST08 with e=0x02 calls putc
-    ; jp stack_top
-    halt
+    call io_init
+    
+    
+    jp 
+    
 
 stack_bottom:
     .porg 0xFF00

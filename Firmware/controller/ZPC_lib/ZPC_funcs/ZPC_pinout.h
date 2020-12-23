@@ -36,27 +36,25 @@
 
 
 
-#define INT_ 48    
-#define BUSACK_ 51 
-#define WAIT_ 49
+#define INT_ 48      // PL1
+#define BUSACK_ 51   // PB2
+#define WAIT_ 49     // PL0
 
-#define WR_ 53
-#define RD_ 52
+#define WR_ 53       // PB0
+#define RD_ 52       // PB1
 
-#define MREQ_ 46
+#define MREQ_ 46     // PL3
 
-#define RESET_ 5 
-#define BUSREQ_ 50
+#define RESET_ 5     // PE3
+#define BUSREQ_ 50   // PB3
 
-#define CLK 11 
+#define CLK 11       // PB5
 
-#define WAIT_RES_ 47 
+#define WAIT_RES_ 47 // PL2
 
-#define USER_LED 13
+#define M1_ 15       // PJ0
 
-#define M1_ 15
-
-
+#define USER_LED 13  // PB7
 
 #define EXT_CLOCK A5
 
