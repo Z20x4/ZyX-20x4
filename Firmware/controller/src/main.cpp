@@ -737,47 +737,6 @@ char info[100];
 Sd2Card sd{};
 void loop()
 {
-      Serial.print("-----\n");
-    sd.init();
-          sprintf(info, "Error: %d\n", sd.errorCode());
-      Serial.print(info);
-      Serial.print("-----\n");
-      sprintf(info, "Card size: %d\n", sd.cardSize());
-      Serial.print(info);
-      Serial.print("-----\n");
-    
-    for (int i = 0; i < 512; i++) {
-      block[i] = (uint8_t)i;
-    }
-
-    Serial.println(sd.type() == SD_CARD_TYPE_SDHC);
-
-    for (int i = 0; i < 30; i++) {
-      int status = sd.writeBlock(i, block);
-      sprintf(info, "Write Status: %d\n", status);
-      Serial.print(info);
-      sprintf(info, "Error: %d\n", sd.errorCode());
-      Serial.print(info);
-      Serial.print("-----\n");
-    }
-    Serial.print("BLOCK WRITTEN\n");
-
-    for (int i = 0; i < 512; i++) {
-      block[i] = 0;
-    }
-    sd.readBlock(2, block);
-    bool ok = true;
-    for (int i = 0; i < 128; i++) {
-      Serial.print(block[i]);
-    }
-    if (!ok) {
-      Serial.println("Error in reading");
-    } else {
-      Serial.println("Reading was OK");
-    }
-
-
-
 
   delay(100);
   ZPC_Serial_Handle();
