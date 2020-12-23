@@ -1,7 +1,6 @@
 # ZyX-20x4
 A repository containing the firmware for a modern Z80 based PC.
 
-
 ### Output ports specifications
 | Port | Specification |
 |------|---------------|
@@ -55,3 +54,14 @@ A repository containing the firmware for a modern Z80 based PC.
 | USER_LED | 13 |
 | M1_ | 15 |
 | EXT_CLOCK | A5 |
+| Screen | A0 |
+| Screen | A1 |
+| Screen | A2 |
+| Screen | A3 |
+| Screen | A4 |
+| SD card SPI CS | A6 |
+| SD card SPI CLK | A7 |
+| SD card SPI MOSI | A8 |
+| SD card SPI MISO | A9 |
+
+

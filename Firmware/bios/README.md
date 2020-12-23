@@ -60,12 +60,16 @@ Please note that the actual implementation is slightly more complicated, as to p
 
 | Register `DE` | Handler name | Description |
 |---------------|--------------|-------------|
-|0x0000         |` st_init `   | Initialize storage interface system|
+|0x0000         |` st_init `   | Initialize storage interface system. Return error status in **`A`**|
+|0x0002         |` st_seek `   | Move cursor to block id, stored at **`HL`**|
+|0x0004         |` st_read `   | Read block from storge into memory at 8-bit address **`H`**|
+|0x0006         |` st_write `  | Write block to storage from memory at 8-bit address **`H`**| 
+<!-- 
 |0x0002         |` st_steps `  | Set the step size to 2 to the power of **`A`**(max 32) |
 |0x0004         |` st_moves `  | Move cursor by the number of steps specified in **`HL`** |
 |0x0006         |` st_chunks ` | Set the chunk size to 2 to the power of **`A`**(max 32) |
 |0x0008         |` st_readc `  | Read one chunk from storage into location specified by **`HL`**|
-|0x000a         |` st_writec ` | Write one chunk starting at **`HL`** into the storage device |
+|0x000a         |` st_writec ` | Write one chunk starting at **`HL`** into the storage device | -->
 
 ### `RST 0x18` - Virtual memory management
 
@@ -112,3 +116,66 @@ Doesn't do anything, may be used for `db_break`, `tm_wait`, `io_recieve`.
 |0x100 | 256 | IO buffer |
 | 0x200 | 2 | IO buffer start address |
 | 0x202 | 2 | IO buffer end address |
+
+
+
+## Interrupts handling
+In general, two types of hardware interrupts are used: NMI and Mode 2 interrupt. 
+Mode 1 interrupt is also supported, although it's use is limited.
+
+### NMI
+NMI handler will be executed in Kernel Mode
+NMI is reserved for events regarding the kernel of the operating system, such as 
+- MMU interrupts (page fault, segmentation fault)
+- Timer interrupts for preemptive multitasking
+- Syscalls
+
+All other interrupts should use Mode 2 interrupts.
+Handlers of them will be executed in User Mode and can be modified by user program
+
+
+```
+NMI:
+     ;rip
+    --> ld A, (reserved_nmi_addr)
+    tst A
+    jneq ARDUINO_NMI ;timer NMI
+    ... ; Memory NMI or syscall
+ARDUINO_NMI:
+    in A, (reserved_arduino_port)
+    tst A
+    jneq ...
+```
+
+## Unified syscall service routine (USSR)
+Implementation pseudocode example
+```
+    ;-----------  User side  ----------------
+    ld A, syscall_num
+    ld BC, syscall_arg
+    SET_KERNEL 1    ; throws NMI with code SET_KERNEL_NMI
+
+    ;----------- Kernel side --------------
+NMI:
+     ;rip
+    --> ld A, (reserved_nmi_addr)
+    
+    tst A
+    jneq ARDUINO_NMI ;timer NMI
+    ; if(A == SET_KERNEL_NMI){
+    ; call syscall;
+    ; SET_KERNEL 0;
+    ; retn
+    ;}
+    
+    ... ; Memory NMI or syscall
+ARDUINO_NMI:
+    in A, (reserved_arduino_port)
+    tst A
+    jneq ...
+```
+
+MMU has a bit which determines what if a program is in the kernel mode right now.
+If a process tries to modyfy this bit while in user mode, MMU throws NMI and sets its internal rNMI_CAUSE register to NMI_SET_KERNEL.
+In the NMI handler OS reads rNMI_CAUSE register to determine the cause of interrups; if it equals to NMI_SET_KERNEL, it is interpreted as a system call: a system call handler corresponding to the A register is called, and results are returned to the callee process. 
+If rNMI_CAUSE requires OS code to be executed, SET_KERNEL 1 is used inside the NMI handler.

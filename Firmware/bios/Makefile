@@ -1,6 +1,5 @@
 ASM = sjasmplus
-ASM_FLAGS = --lst
-
+override ASM_FLAGS := $(ASM_FLAGS) --lst
 
 # %:
 # 	@:
