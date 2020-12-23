@@ -1,4 +1,4 @@
-
+#define SOFTWARE_SPI
 #ifndef Sd2Card_h
 #define Sd2Card_h
 
@@ -32,17 +32,20 @@ uint8_t const SPI_QUARTER_SPEED = 2;
 
   // define software SPI pins so Mega can use unmodified GPS Shield
   /** SPI chip select pin */
-  uint8_t const SD_CHIP_SELECT_PIN = 10;
+  uint8_t const SD_CHIP_SELECT_PIN = 60;
   /** SPI Master Out Slave In pin */
-  uint8_t const SPI_MOSI_PIN = 11;
+  uint8_t const SPI_MOSI_PIN = 62;
   /** SPI Master In Slave Out pin */
-  uint8_t const SPI_MISO_PIN = 12;
+  uint8_t const SPI_MISO_PIN = 63;
   /** SPI Clock pin */
-  uint8_t const SPI_SCK_PIN = 13;
+  uint8_t const SPI_SCK_PIN = 61;
+
+
+
 
 //------------------------------------------------------------------------------
 /** Protect block zero from write if nonzero */
-#define SD_PROTECT_BLOCK_ZERO 1
+#define SD_PROTECT_BLOCK_ZERO 0
 /** init timeout ms */
 unsigned int const SD_INIT_TIMEOUT = 2000;
 /** erase timeout ms */
@@ -178,6 +181,9 @@ class Sd2Card {
     uint8_t writeStart(uint32_t blockNumber, uint32_t eraseCount);
     uint8_t writeStop(void);
     uint8_t isBusy(void);
+    void type(uint8_t value) {
+      type_ = value;
+    }
   private:
     uint32_t block_;
     uint8_t chipSelectPin_;
@@ -200,9 +206,7 @@ class Sd2Card {
     uint8_t sendWriteCommand(uint32_t blockNumber, uint32_t eraseCount);
     void chipSelectHigh(void);
     void chipSelectLow(void);
-    void type(uint8_t value) {
-      type_ = value;
-    }
+
     uint8_t waitNotBusy(unsigned int timeoutMillis);
     uint8_t writeData(uint8_t token, const uint8_t* src);
     uint8_t waitStartBlock(void);
