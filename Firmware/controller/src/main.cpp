@@ -141,10 +141,10 @@ void ZPC_Clock_Change(enum clock_mode_en new_mode)
 
 void ZPC_Clock_Handle()
 {
-  if (digitalRead(CLOCK_CHNG_) == LOW)
-  {
-    ZPC_Clock_Change((clock_mode_en)((!digitalRead(CLOCK_TYPE_PIN_1_)) | (digitalRead(CLOCK_TYPE_PIN_2_) << 1)));
-  }
+  // if (digitalRead(CLOCK_CHNG_) == LOW)
+  // {
+  //   ZPC_Clock_Change((clock_mode_en)((!digitalRead(CLOCK_TYPE_PIN_1_)) | (digitalRead(CLOCK_TYPE_PIN_2_) << 1)));
+  // }
 
   switch (clock_mode)
   {
@@ -705,7 +705,9 @@ void setup()
   pinMode(EXT_CLOCK, INPUT_PULLUP);
   ZPC_Clock_Config();
   // ZPC_Clock_Start(); // Mode 0 by default (Arduino clock source)
-  ZPC_Clock_Change(CLK_BUTTON);
+  // ZPC_Clock_Change(CLK_BUTTON);
+  ZPC_Clock_Change((clock_mode_en)((!digitalRead(CLOCK_TYPE_PIN_1_)) | (digitalRead(CLOCK_TYPE_PIN_2_) << 1)));
+
 
   ZPC_ProcStart();
 
