@@ -1,4 +1,4 @@
-#define SOFTWARE_SPI
+
 #include <Arduino.h>
 #include "../sd2card/Sd2Card.h"
 

@@ -679,6 +679,7 @@ void setup()
   // TODO: Check if this is needed
   mt_init();
 
+
   Serial.begin(9600);
   Serial.print("init\n");
 
@@ -699,6 +700,10 @@ void setup()
   ZPC_DisplayRAM(&displayer);
 
   Serial.print("Start\n");
+
+
+  ZPC_st_init();
+
 
   pinMode(USER_LED, OUTPUT);
   // pinMode(INT_, OUTPUT);    //!!
@@ -733,11 +738,15 @@ void setup()
 }
 
 int clk_s = 0;
+
+
+
+uint8_t block[512];
+char info[100];
+Sd2Card sd{};
 void loop()
 {
   delay(1);
-
-
   ZPC_Serial_Handle();
   ZPC_Clock_Handle();
 
