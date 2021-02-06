@@ -13,8 +13,10 @@
 
 #define program program_CUSTOM
 
-#define DEBUG_MODE (R | W)
+// #define DEBUG_MODE (R | W)
 // #define DEBUG_MODE (0)
+#define DEBUG_MODE (IO)
+
 #define IO_INT 0x04
 
 #define CLOCK_TYPE_PIN_1_ 6
@@ -107,21 +109,24 @@ void ZPC_Clock_Config()
 
   TIMSK1 = 0;
 
-  OCR1A = 399; //Set Compare registre to 399
+  OCR1A = 3999; //Set Compare register to 399
+  OCR1A = 3999; //Set Compare register to 399
 
   // clock_mode = CLK_MAINLOOP;
 }
 
 inline void ZPC_Clock_Stop()
 {
-  TCCR1A &= ~(1 << COM1A0); //Set CLK pin to free
+  // TCCR1A &= ~(1 << COM1A0); //Set CLK pin to free
+  TCCR1A &= ~(1 << COM1B0); //Set CLK pin to free
   TCCR1B &= ~(1 << CS10);   // CS = 000, stop
 }
 
 inline void ZPC_Clock_Start()
 {
   TCNT1 = 0;               //Set timer counter to zero
-  TCCR1A |= (1 << COM1A0); //Set CLK pin to toggle on Compare Capture
+  // TCCR1A |= (1 << COM1A0); //Set CLK pin to toggle on Compare Capture
+  TCCR1A |= (1 << COM1B0); //Set CLK pin to toggle on Compare Capture
   TCCR1B |= (1 << CS10);   // CS = 001, start without a prescaler
 }
 
@@ -232,8 +237,8 @@ uint8_t TQueue_empty(struct TQueue *q)
 // inline void ZPC_
 
 // ----------------------------------------------------------------------Displayer---------------------------------------------------------------------------------------
-
-static PCD8544 lcd(A0, A1, A2, A4, A3);
+// A0, A1, A2, A4, A3
+static PCD8544 lcd(A1,A3,A4,A0,A2);
 static ZPC_Displayer displayer(lcd);
 
 inline void ZPC_DisplayRAM(ZPC_Displayer *displayer)
@@ -336,7 +341,7 @@ void mt_set_compare_register(int new_value)
 
 void mt_set_interrupt_vector(uint8_t vector)
 {
-  // TODO: discuss this. (interrupt ahould br NMI??? Then no vector)
+  // TODO: discuss this. (interrupt should be NMI??? Then no vector)
 }
 
 
@@ -363,7 +368,7 @@ void ZPC_IO_HandleWrite(uint16_t address, uint8_t data)
     ZPC_IO_Serial_WriteByte(data);
     break;
   case 0x02: // Print byte as hex
-    sprintf(s, "%02X", data);
+    sprintf(s, "0x%02X\n", data);
     Serial.print(s);
     break;
   case 0x0f:
@@ -626,7 +631,8 @@ void ZPC_IO_Handle()
         data = ZPC_IO_HandleRead(address);
         data_is_set = 1;
         data_is_output = 1;
-        sprintf(s, "  Handling read: %x\n", data);
+
+        // sprintf(s, "  Handling read: %x\n", data);
         Serial.print(s);
         // ZPC_DataSetOutput();
         // ZPC_SetData(data);
@@ -640,7 +646,7 @@ void ZPC_IO_Handle()
         data = interrupt_vector;
         data_is_output = 1;
         data_is_set = 1;
-        sprintf(s, "  Int vector: %x\n", data);
+        // sprintf(s, "  Int vector: %x\n", data);
         Serial.print(s);
         interrupt_in_progress = 0; //Interrupt will end in next cycle
         digitalWrite(INT_, HIGH);
@@ -704,11 +710,10 @@ void setup()
   clock_mode = CLK_TIMER;
   pinMode(EXT_CLOCK, INPUT_PULLUP);
   ZPC_Clock_Config();
-  // ZPC_Clock_Start(); // Mode 0 by default (Arduino clock source)
+  ZPC_Clock_Start(); // Mode 0 by default (Arduino clock source)
+  // ZPC_Clock_Change(CLK_TIMER);
+  ZPC_Clock_Change(CLK_MAINLOOP);
   // ZPC_Clock_Change(CLK_BUTTON);
-       if(digitalRead(CLOCK_TYPE_PIN_1_))ZPC_Clock_Change(CLK_BUTTON);
-  else if(digitalRead(CLOCK_TYPE_PIN_2_))ZPC_Clock_Change(CLK_MAINLOOP);
-  else if(digitalRead(CLOCK_TYPE_PIN_3_))ZPC_Clock_Change(CLK_TIMER);
 
 
   ZPC_ProcStart();
@@ -719,20 +724,27 @@ void setup()
   {
     ZPC_Clock_Handle();
   }
-  // ZPC_Clock_Change(CLK_MAINLOOP);
+  //      if(digitalRead(CLOCK_TYPE_PIN_1_))ZPC_Clock_Change(CLK_BUTTON);
+  // else if(digitalRead(CLOCK_TYPE_PIN_2_))ZPC_Clock_Change(CLK_MAINLOOP);
+  // else if(digitalRead(CLOCK_TYPE_PIN_3_))ZPC_Clock_Change(CLK_TIMER);
+  // ZPC_Clock_Change(CLK_TIMER);
+  ZPC_Clock_Change(CLK_MAINLOOP);
   digitalWrite(RESET_, HIGH);
 }
 
 int clk_s = 0;
 void loop()
 {
-  delay(100);
+  delay(1);
+
+
   ZPC_Serial_Handle();
   ZPC_Clock_Handle();
 
   ZPC_Interrupts_HandleSend(); //Check interrupt queue and set INT to 0 or 1 if neded
 
   IO = !digitalRead(WAIT_);
+  // IO=!digitalRead()
   W = !digitalRead(WR_);
   R = !digitalRead(RD_);
   M1 = !digitalRead(M1_);

@@ -98,9 +98,13 @@ void ZPC_MemWrite(uint16_t address, uint8_t data)
 
     digitalWrite(MREQ_, LOW); // Enable external RAM /CE1 pin
     digitalWrite(WR_, LOW);   // Write data into current address of the external RAM (10us 1-0-1 pulse)
+    // digitalWrite(CLK, LOW);
     delayMicroseconds(100);
+    // delay(5000);
+    // digitalWrite(CLK, HIGH);
     digitalWrite(WR_, HIGH);
     digitalWrite(MREQ_, HIGH);
+    // delay(5000);
 
 }
 

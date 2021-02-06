@@ -48,7 +48,8 @@
 #define RESET_ 5     // PE3
 #define BUSREQ_ 50   // PB3
 
-#define CLK 11       // PB5
+// #define CLK 11       // PB5
+#define CLK 12       // PB6
 
 #define WAIT_RES_ 47 // PL2
 

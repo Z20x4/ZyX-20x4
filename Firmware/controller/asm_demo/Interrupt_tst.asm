@@ -8,10 +8,9 @@ main:
     ld a, "b"
 
 loop:
-    out (0x01), a 
+    out (0x02), a 
     jp loop
-
-    out (0x01), a
+    out (0x02), a
 
     BLOCK 0x32, 0
 
