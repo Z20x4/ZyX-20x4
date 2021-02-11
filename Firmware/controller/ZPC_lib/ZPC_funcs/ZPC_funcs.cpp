@@ -164,6 +164,7 @@ void ZPC_FreeBus()
 // Copy data from src in RAM to dest in Arduino
 void ZPC_MemReadBlock(uint8_t *dest, uint16_t src, uint16_t size)
 {
+    noInterrupts();
     //   pinMode()
     ZPC_TakeBus();
     ZPC_AddressSetOutput();
@@ -174,11 +175,13 @@ void ZPC_MemReadBlock(uint8_t *dest, uint16_t src, uint16_t size)
     }
     ZPC_AddressSetInputPullup();
     ZPC_FreeBus();
+    interrupts();
 }
 
 // Copy data from src in Arduino to dest in RAM
 void ZPC_MemWriteBlock(uint16_t dest, uint8_t *src, uint16_t size)
 {
+    noInterrupts();
     ZPC_TakeBus();
     ZPC_AddressSetOutput();
     ZPC_DataSetOutput();
@@ -189,6 +192,7 @@ void ZPC_MemWriteBlock(uint16_t dest, uint8_t *src, uint16_t size)
     ZPC_AddressSetInputPullup();
     ZPC_DataSetInputPullup();
     ZPC_FreeBus();
+    interrupts();
 }
 
 void ZPC_ArduinoInit()
