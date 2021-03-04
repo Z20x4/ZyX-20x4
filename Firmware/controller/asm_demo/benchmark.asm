@@ -10,11 +10,10 @@ main:
 
 lp_outer:
     ld hl, 0
-    out (0x0f), a
+    out (0x02), a
 
 loop:
     inc hl
-    cp h
     jp nz, loop
 
     ; out (0x0f), a

@@ -75,6 +75,25 @@ void ZPC_SetAddress(uint16_t address)
             (AD_PORTL_BITMASK & (reversed_address << 4));
 }
 
+void ZPC_SetAddress_FIXED(uint16_t address)
+{
+    uint16_t reversed_address = __reverse16(address);
+    //reversed_address: C7 C6 C5 C4 C3 C2 C1 C0 D7 G2 G1 L4 L5 L6 L7 G0
+    ZPC_AddressSetOutput();
+
+    PORTC = (PORTC & ~AD_PORTC_BITMASK) |
+            (AD_PORTC_BITMASK & (reversed_address >> 8));
+
+    PORTD = (PORTD & ~AD_PORTD_BITMASK) |
+            (AD_PORTD_BITMASK & (reversed_address >> 0));
+
+    PORTG = (PORTG & ~AD_PORTG_BITMASK) |
+            (AD_PORTG_BITMASK & (reversed_address >> 4));
+
+    PORTL = (PORTL & ~AD_PORTL_BITMASK) |
+            (AD_PORTL_BITMASK & (reversed_address << 4));
+}
+
 uint16_t ZPC_GetAddress()
 {
     uint16_t reversed_address = 0x0000;
@@ -193,6 +212,29 @@ void ZPC_MemWriteBlock(uint16_t dest, uint8_t *src, uint16_t size)
     ZPC_DataSetInputPullup();
     ZPC_FreeBus();
     interrupts();
+}
+
+void ZPC_MemWriteBlock_Flash(uint16_t dst, uint_farptr_t src, uint16_t size)
+{
+    ZPC_TakeBus();
+    ZPC_AddressSetOutput();
+    ZPC_DataSetOutput();
+    const uint16_t BLOCKSIZE=0x800;
+    static uint8_t buf[BLOCKSIZE];
+    for(uint16_t block=0; block * BLOCKSIZE < size; block++){
+        memcpy_PF(buf, src+block*BLOCKSIZE, BLOCKSIZE);
+
+        noInterrupts();
+        for (uint16_t p = 0; p < BLOCKSIZE; p++)
+        {
+            ZPC_MemWrite(dst + block*BLOCKSIZE + p, *(buf + p));
+        }
+        interrupts();
+    } 
+
+    ZPC_AddressSetInputPullup();
+    ZPC_DataSetInputPullup();
+    ZPC_FreeBus();
 }
 
 void ZPC_ArduinoInit()

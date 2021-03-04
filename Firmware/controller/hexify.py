@@ -12,7 +12,7 @@ def hexify(binary, outfile="program.h"):
 
 #define PROG_SIZE {len(hexcode)}
 
-uint8_t program_CUSTOM[] = {{
+const uint8_t program_CUSTOM[] PROGMEM = {{
 {fromatted_hex}
 }};
 

@@ -8,7 +8,7 @@ main:
     ld a, "b"
 
 loop:
-    out (0x02), a 
+    out (0x01), a 
     jp loop
     out (0x02), a
 

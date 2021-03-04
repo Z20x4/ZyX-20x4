@@ -14,8 +14,8 @@
 #define program program_CUSTOM
 
 // #define DEBUG_MODE (R | W)
-// #define DEBUG_MODE (0)
-#define DEBUG_MODE (IO)
+#define DEBUG_MODE (0)
+// #define DEBUG_MODE (IO)
 
 #define IO_INT 0x04
 
@@ -24,6 +24,7 @@
 #define CLOCK_TYPE_PIN_3_ 8 //19
 
 char s[30];
+
 
 uint8_t W = 0;
 uint8_t R = 0;
@@ -35,29 +36,29 @@ uint8_t data = 0xff;
 uint8_t int_vector = 0xff;
 uint8_t status = 0;
 
-uint8_t program_TEMPLATE[] = {
-    0x00, 0x00, 0x00, 0x00, //0x00
-    0x00, 0x00, 0x00, 0x00, //0x04
-    0x00, 0x00, 0x00, 0x00, //0x08
-    0x00, 0x00, 0x00, 0x00, //0x0c
-    0x00, 0x00, 0x00, 0x00, //0x10
-    0x00, 0x00, 0x00, 0x00, //0x14
-    0x00, 0x00, 0x00, 0x00, //0x18
-    0x00, 0x00, 0x00, 0x00, //0x1c
-    0x00, 0x00, 0x00, 0x00, //0x20
-    0x00, 0x00, 0x00, 0x00, //0x24
-    0x00, 0x00, 0x00, 0x00, //0x28
-    0x00, 0x00, 0x00, 0x00, //0x2c
-    0x00, 0x00, 0x00, 0x00, //0x30
-    0x00, 0x00, 0x00, 0x00, //0x34
-    0x00, 0x00, 0x00, 0x00, //0x38
-    0x00, 0x00, 0x00, 0x00, //0x3c
-    0x00, 0x00, 0x00, 0x00, //0x40
-    0x00, 0x00, 0x00, 0x00, //0x44
-    0x00, 0x00, 0x00, 0x00, //0x48
-    0x00, 0x00, 0x00, 0x00, //0x4c
-    0x00, 0x00, 0x00, 0x00, //0x50
-    0x00};
+// uint8_t program_TEMPLATE[] = {
+//     0x00, 0x00, 0x00, 0x00, //0x00
+//     0x00, 0x00, 0x00, 0x00, //0x04
+//     0x00, 0x00, 0x00, 0x00, //0x08
+//     0x00, 0x00, 0x00, 0x00, //0x0c
+//     0x00, 0x00, 0x00, 0x00, //0x10
+//     0x00, 0x00, 0x00, 0x00, //0x14
+//     0x00, 0x00, 0x00, 0x00, //0x18
+//     0x00, 0x00, 0x00, 0x00, //0x1c
+//     0x00, 0x00, 0x00, 0x00, //0x20
+//     0x00, 0x00, 0x00, 0x00, //0x24
+//     0x00, 0x00, 0x00, 0x00, //0x28
+//     0x00, 0x00, 0x00, 0x00, //0x2c
+//     0x00, 0x00, 0x00, 0x00, //0x30
+//     0x00, 0x00, 0x00, 0x00, //0x34
+//     0x00, 0x00, 0x00, 0x00, //0x38
+//     0x00, 0x00, 0x00, 0x00, //0x3c
+//     0x00, 0x00, 0x00, 0x00, //0x40
+//     0x00, 0x00, 0x00, 0x00, //0x44
+//     0x00, 0x00, 0x00, 0x00, //0x48
+//     0x00, 0x00, 0x00, 0x00, //0x4c
+//     0x00, 0x00, 0x00, 0x00, //0x50
+//     0x00};
 
 // -----------------------------------------------------------------Clock Manipulation----------------------------------------------------------------------------------
 enum clock_mode_en
@@ -109,8 +110,8 @@ void ZPC_Clock_Config()
 
   TIMSK1 = 0;
 
-  OCR1A = 3999; //Set Compare register to 399
-  OCR1A = 3999; //Set Compare register to 399
+  OCR1A = 15; //Set Compare register to 399
+  // OCR1A = 3999; //Set Compare register to 399
 
   // clock_mode = CLK_MAINLOOP;
 }
@@ -144,6 +145,8 @@ void ZPC_Clock_Change(enum clock_mode_en new_mode)
   return;
 }
 
+uint16_t cycle=0;
+
 void ZPC_Clock_Handle()
 {
   // if (digitalRead(CLOCK_CHNG_) == LOW)
@@ -159,6 +162,7 @@ void ZPC_Clock_Handle()
     // delay(1);
     digitalWrite(CLK, LOW);
     digitalWrite(CLK, HIGH);
+    cycle++;
     break;
   case CLK_BUTTON:
     // Serial.print("\nWait for EXT_CLK LOW...\n");
@@ -471,10 +475,12 @@ uint8_t ZPC_IO_HandleRead(uint16_t address)
     // data_in = ZPC_IO_Serial_ReadByte(); //Todo: pop 1 byte from serial queue
     data_in = TQueue_pop(&serial_data_q);
     break;
-
+  case 0x25:
+    data_in = 0x8;
+    break;
   case 0x46: // **INPUT** Get timer count via data |
   default:
-    // data_in = ZPC_IO_Serial_ReadByte(); //Todo: pop 1 byte from serial queue
+    // data_in = ZPC_IO_Serial_ReadByte();
     data_in = TQueue_pop(&serial_data_q);
   }
   return data_in;
@@ -513,7 +519,7 @@ void ZPC_Serial_HandleUpload()
 
   displayer._next_line(1);
   displayer._print(s);
-  delay(5000);
+  // delay(5000);
   // Read bytes from serial and write them to RAM
   if (0xffff - address_to_write < size_to_write)
   {
@@ -575,7 +581,7 @@ void ZPC_Serial_HandleCommand(uint8_t command)
 
 void ZPC_Serial_HandleData(uint8_t serial_data)
 {
-  sprintf(s, "----Data from Serial: %02X\n", serial_data);
+  // sprintf(s, "----Data from Serial: %02X\n", serial_data);
   TQueue_push(&serial_data_q, serial_data);
   TQueue_push(&interrupts_q, IO_INT);
 }
@@ -616,26 +622,77 @@ void ZPC_Interrupts_HandleSend()
   }
 }
 
+
+// uint8_t data = 0x00;
+// void ZPC_IO_Handle()
+// {
+//   if (IO)//RS switch active
+//   {
+//     if (!data_is_set)
+//     {
+//       if (R)
+//       {
+//         data = ZPC_IO_HandleRead(address);
+//         data_is_set = 1;
+//         data_is_output = 1;
+
+//       }
+//       else if (W)
+//       {
+//         ZPC_IO_HandleWrite(address, data);
+//       }
+//       else if (M1) //M1 + IO means interrupt vector request for type2 interrupt
+//       {
+//         data = interrupt_vector;
+//         data_is_output = 1;
+//         data_is_set = 1;
+//         // sprintf(s, "  Int vector: %x\n", data);
+//         Serial.print(s);
+//         interrupt_in_progress = 0; //Interrupt will end in next cycle
+//         digitalWrite(INT_, HIGH);
+//       }
+//       digitalWrite(BUSREQ_, LOW);
+//       digitalWrite(WAIT_RES_, LOW);
+//       if (data_is_output)
+//       {
+
+//         ZPC_DataSetOutput();
+//         ZPC_SetData(data);
+//       }
+//     }
+//     else
+//     {
+//       return;
+//     }
+//   }
+//   else
+//   {
+//     if (data_is_output)
+//     {
+//       ZPC_DataSetInputPullup();
+//       data_is_output = 0;
+//     }
+//     data_is_set = 0;
+//     digitalWrite(WAIT_RES_, HIGH);
+//     digitalWrite(BUSREQ_, HIGH);
+//   }
+// }
+
 uint8_t data_is_output = 0;
 uint8_t data_is_set = 0;
 uint8_t io_delay = 0;
-// uint8_t data = 0x00;
+uint8_t io_active=0;
 void ZPC_IO_Handle()
 {
-  if (IO)
+  if (IO)// IORQ low
   {
-    if (!data_is_set)
+    if (!io_active) // First IO cycle
     {
       if (R)
       {
         data = ZPC_IO_HandleRead(address);
         data_is_set = 1;
         data_is_output = 1;
-
-        // sprintf(s, "  Handling read: %x\n", data);
-        Serial.print(s);
-        // ZPC_DataSetOutput();
-        // ZPC_SetData(data);
       }
       else if (W)
       {
@@ -651,6 +708,7 @@ void ZPC_IO_Handle()
         interrupt_in_progress = 0; //Interrupt will end in next cycle
         digitalWrite(INT_, HIGH);
       }
+      io_active=1;
       digitalWrite(BUSREQ_, LOW);
       digitalWrite(WAIT_RES_, LOW);
       if (data_is_output)
@@ -659,20 +717,27 @@ void ZPC_IO_Handle()
         ZPC_SetData(data);
       }
     }
+    else // Middle of IO cycle
+    {
+
+      return;
+    }
   }
   else
   {
-    if (data_is_output)
-    {
-      ZPC_DataSetInputPullup();
-      data_is_output = 0;
+    if(io_active){
+      if (data_is_output)
+      {
+        ZPC_DataSetInputPullup();
+        data_is_output = 0;
+      }
+      data_is_set = 0;
+      digitalWrite(WAIT_RES_, HIGH);
+      digitalWrite(BUSREQ_, HIGH);
+      io_active=0;
     }
-    data_is_set = 0;
-    digitalWrite(WAIT_RES_, HIGH);
-    digitalWrite(BUSREQ_, HIGH);
   }
 }
-
 // -----------------------------------------------------------------------Main code--------------------------------------------------------------------------------------
 void setup()
 {
@@ -690,8 +755,8 @@ void setup()
 
   ZPC_ArduinoInit();
 
-  ZPC_MemWriteBlock(0, program, PROG_SIZE);
-
+  // ZPC_MemWriteBlock(0, program, PROG_SIZE);
+  ZPC_MemWriteBlock_Flash(0, program, PROG_SIZE);
   // ZPC_MemReadBlock(displayer.ram_data, displayer.ram_addr, displayer.ram_size);
   // displayer.refresh();
 
@@ -708,9 +773,9 @@ void setup()
   pinMode(USER_LED, OUTPUT);
   // pinMode(INT_, OUTPUT);    //!!
   // digitalWrite(INT_, HIGH); //!!
-  pinMode(CLOCK_TYPE_PIN_1_, INPUT_PULLUP);
-  pinMode(CLOCK_TYPE_PIN_2_, INPUT_PULLUP);
-  pinMode(CLOCK_TYPE_PIN_3_, INPUT_PULLUP);
+  pinMode(CLOCK_TYPE_PIN_1_, INPUT);//Not pullup: external 100kOm puldown
+  pinMode(CLOCK_TYPE_PIN_2_, INPUT);
+  pinMode(CLOCK_TYPE_PIN_3_, INPUT);
 
   clock_mode = CLK_TIMER;
   pinMode(EXT_CLOCK, INPUT_PULLUP);
@@ -732,13 +797,12 @@ void setup()
   //      if(digitalRead(CLOCK_TYPE_PIN_1_))ZPC_Clock_Change(CLK_BUTTON);
   // else if(digitalRead(CLOCK_TYPE_PIN_2_))ZPC_Clock_Change(CLK_MAINLOOP);
   // else if(digitalRead(CLOCK_TYPE_PIN_3_))ZPC_Clock_Change(CLK_TIMER);
-  // ZPC_Clock_Change(CLK_TIMER);
-  ZPC_Clock_Change(CLK_MAINLOOP);
+  ZPC_Clock_Change(CLK_TIMER);
+  // ZPC_Clock_Change(CLK_MAINLOOP);
   digitalWrite(RESET_, HIGH);
 }
 
 int clk_s = 0;
-
 
 
 uint8_t block[512];
@@ -765,6 +829,8 @@ void loop()
 
   if (DEBUG_MODE)
   {
+    sprintf(s, "%d :",cycle);
+    Serial.print(s);
     if (IO)
     {
       Serial.print("IO ");
@@ -777,7 +843,14 @@ void loop()
     {
       Serial.print("Read ");
     }
-    sprintf(s, "Address : %04x Data: %02x \n", address, data);
+    sprintf(s, "-Address : %04x Data: %02x \n", address, data);
     Serial.print(s);
   }
 }
+
+
+
+// 1202_1000
+
+// 0000_1000 -> 1000_0000
+// 0001_0000 -> 0100_0000

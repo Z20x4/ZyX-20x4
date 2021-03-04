@@ -1,6 +1,7 @@
 #ifndef ZPC_FUNCS_PROTO1
 #define ZPC_FUNCS_PROTO1
 #include "Arduino.h"
+#include <avr/pgmspace.h>
 #include "ZPC_pinout.h"
 
 
@@ -45,6 +46,9 @@ void ZPC_MemWrite(uint16_t address, uint8_t data);
 
 // Copy data from src in Arduino to dest in RAM
 void ZPC_MemWriteBlock(uint16_t dest, uint8_t *src, uint16_t size);
+
+// Copy data from src in Arduino Flash to dest in RAM
+void ZPC_MemWriteBlock_Flash(uint16_t dst, uint_farptr_t src, uint16_t size);
 
 //Read one byte from RAM
 uint8_t ZPC_MemRead(uint16_t address);

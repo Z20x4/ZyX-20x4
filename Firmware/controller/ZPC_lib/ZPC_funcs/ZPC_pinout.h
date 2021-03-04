@@ -29,6 +29,9 @@
 #define AD14 44 // PL5
 #define AD15 45 // PL4
 
+// A15 -> A11
+// A12 -> A14
+
 #define AD_PORTC_BITMASK B11111111
 #define AD_PORTD_BITMASK B10000000
 #define AD_PORTG_BITMASK B00000111
@@ -38,7 +41,10 @@
 
 #define INT_ 48      // PL1
 #define BUSACK_ 51   // PB2
-#define WAIT_ 49     // PL0
+// #define WAIT_ 49     // PL0
+#define WAIT_ A15     // PL0
+
+
 
 #define WR_ 53       // PB0
 #define RD_ 52       // PB1
