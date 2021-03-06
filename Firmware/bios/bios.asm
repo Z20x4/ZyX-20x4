@@ -5,6 +5,11 @@
     output "bios.bin", t
 
     .porg 0x00
+; FOR DEBUG
+foo:
+    jp test_program ; JUMP TO THE TEST PROGRAM START
+
+    
 RST0:
     jp init
     
@@ -41,10 +46,10 @@ RST30:
 
     .porg 0x38
 RST38:
-    push a
+    push af
     in a, (0x01)
     call io_queue_push
-    pop a
+    pop af
     ei
     reti
 
@@ -337,14 +342,23 @@ init:
     call io_init
     
     
-    jp 
+    ret
+
+    
+test_program:
+    .porg 0x2000 ; TEST PROGRAM. EXECUTION JUMPS HERE
+    call init
+    call st_init
+    add a, 53 
+    call io_putc
+    jp test_program
     
 
-stack_bottom:
-    .porg 0xFF00
-stack_top:
-    nop
+; stack_bottom:
+;     .porg 0xFF00
+; stack_top:
+;     nop
     
-    outend
+;     outend
 
 

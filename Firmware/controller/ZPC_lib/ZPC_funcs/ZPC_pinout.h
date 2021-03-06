@@ -1,6 +1,11 @@
 #ifndef ZPC_PINOUT
 #define ZPC_PINOUT
 
+#define ZPC_STORAGE_MISO A9;
+#define ZPC_STORAGE_MOSI A8;
+#define ZPC_STORAGE_SCK  A7;
+#define ZPC_STORAGE_SS   A6;
+
 //Z80 data bus
 #define D0 22 // PA0 pin 40
 #define D1 23 // PA1 pin 39

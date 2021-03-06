@@ -1,11 +1,12 @@
 
 #include <Arduino.h>
 #include "../sd2card/Sd2Card.h"
+#include "ZPC_pinout.h"
 
-uint8_t const SS_PIN = 60;
-uint8_t const MOSI_PIN = 62;
-uint8_t const MISO_PIN = 63;
-uint8_t const SCK_PIN = 61;
+uint8_t const SS_PIN = ZPC_STORAGE_SS;
+uint8_t const MOSI_PIN = ZPC_STORAGE_MOSI;
+uint8_t const MISO_PIN = ZPC_STORAGE_MISO;
+uint8_t const SCK_PIN = ZPC_STORAGE_SCK;
 
 
 

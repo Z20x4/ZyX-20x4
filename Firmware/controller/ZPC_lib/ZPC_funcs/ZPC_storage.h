@@ -1,18 +1,18 @@
 #include <Arduino.h>
 
-#define ST_SPI_CLK A6
-#define ST_SPI_CS A7
-#define ST_SPI_MISO A8
-#define ST_SPI_MOSI A9
+#define ST_SPI_CLK A7
+#define ST_SPI_CS A6
+#define ST_SPI_MISO A9
+#define ST_SPI_MOSI A8
 
 
 #define ST_WRONG_ADDRESS 1;
 #define ST_READ_ERROR 2;
 #define ST_WRITE_ERROR 3;
 
-
-
 extern uint8_t status;
+
+int ZPC_st_size();
 
 void ZPC_st_init();
 

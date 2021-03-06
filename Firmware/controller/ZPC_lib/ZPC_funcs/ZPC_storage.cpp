@@ -6,13 +6,19 @@ uint32_t st_current_address;
 
 Sd2Card SD{};
 
+int ZPC_st_size() {
+    return SD.cardSize();
+}
+
 
 void ZPC_st_init() {
+    if (!SD.init()) {
+        status = 1;
+    } else {
+        status = 0;
+    }
     st_current_address = 0; 
-    pinMode(ST_SPI_CLK, OUTPUT);
-    pinMode(ST_SPI_CS, OUTPUT);
-    pinMode(ST_SPI_MISO, OUTPUT);
-    pinMode(ST_SPI_MOSI, INPUT);
+
 }
 
 void ZPC_st_save_address_byte(int byte_number, uint8_t byte){

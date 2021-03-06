@@ -9,6 +9,7 @@
 #include "ZPC_visualisation.h"
 #include "../program.h"
 #include "ZPC_storage.h"
+#include "PS2Keyboard.h"
 
 
 #define program program_CUSTOM
@@ -24,6 +25,9 @@
 #define CLOCK_TYPE_PIN_3_ 8 //19
 
 char s[30];
+
+PS2Keyboard keyboard;
+Sd2Card sd{};
 
 
 uint8_t W = 0;
@@ -742,8 +746,10 @@ void ZPC_IO_Handle()
 void setup()
 {
   // TODO: Check if this is needed
+
   mt_init();
 
+  keyboard.begin(2, 3);
 
   Serial.begin(9600);
   Serial.print("init\n");
@@ -768,6 +774,7 @@ void setup()
 
 
   ZPC_st_init();
+  Serial.println(ZPC_st_size());
 
 
   pinMode(USER_LED, OUTPUT);
@@ -807,14 +814,25 @@ int clk_s = 0;
 
 uint8_t block[512];
 char info[100];
-Sd2Card sd{};
+
 void loop()
 {
+
+  if (keyboard.available()) {
+      
+      // read the next key
+      char c = keyboard.read();
+
+      ZPC_Serial_HandleData(c);
+  }
+
+
   delay(1);
   ZPC_Serial_Handle();
   ZPC_Clock_Handle();
 
-  ZPC_Interrupts_HandleSend(); //Check interrupt queue and set INT to 0 or 1 if neded
+  ZPC_Interrupts_HandleSend(); //Check interrupt queue and set INT to 0 or 1 if nede
+
 
   IO = !digitalRead(WAIT_);
   // IO=!digitalRead()

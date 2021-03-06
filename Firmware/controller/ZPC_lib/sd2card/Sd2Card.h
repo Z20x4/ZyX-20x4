@@ -4,6 +4,7 @@
 
 #include "../sd2card/Sd2PinMap.h"
 #include "../sd2card/SdInfo.h"
+#include "ZPC_pinout.h"
 /** Set SCK to max rate of F_CPU/2. See Sd2Card::setSckRate(). */
 uint8_t const SPI_FULL_SPEED = 0;
 /** Set SCK rate to F_CPU/4. See Sd2Card::setSckRate(). */
@@ -32,13 +33,13 @@ uint8_t const SPI_QUARTER_SPEED = 2;
 
   // define software SPI pins so Mega can use unmodified GPS Shield
   /** SPI chip select pin */
-  uint8_t const SD_CHIP_SELECT_PIN = 60;
+  uint8_t const SD_CHIP_SELECT_PIN = ZPC_STORAGE_SS;
   /** SPI Master Out Slave In pin */
-  uint8_t const SPI_MOSI_PIN = 62;
+  uint8_t const SPI_MOSI_PIN = ZPC_STORAGE_MOSI;
   /** SPI Master In Slave Out pin */
-  uint8_t const SPI_MISO_PIN = 63;
+  uint8_t const SPI_MISO_PIN = ZPC_STORAGE_MISO;
   /** SPI Clock pin */
-  uint8_t const SPI_SCK_PIN = 61;
+  uint8_t const SPI_SCK_PIN = ZPC_STORAGE_SCK;
 
 
 
